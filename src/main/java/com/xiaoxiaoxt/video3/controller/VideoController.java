@@ -65,17 +65,14 @@ public class VideoController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(!isVedio(uploadPath+originalFilename)){
+        if(!isVideo(uploadPath+originalFilename)){
             uploadFile.delete();
             return "您上传的文件格式不对，请上传视频格式的文件";
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run(){
+        new Thread(()->{
                 Vo vo=new Vo();
                 tranf(cVo,vo);
                 videoService.upload(vo);
-            }
         }).start();
         return "上传成功";
     }
@@ -121,7 +118,7 @@ public class VideoController {
         }
     }
 
-    private boolean isVedio(String fileFullPath) {
+    private boolean isVideo(String fileFullPath) {
         boolean isVideo=false;
         String transformedCmd= MessageFormat.format(isVideoCmd,fileFullPath);
         Process process=null;
@@ -130,13 +127,12 @@ public class VideoController {
             process = run.exec(transformedCmd);
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-            System.out.println(sb.toString().substring(11,sb.length()-2));
             VideoDetailParameter videoDetailParameter = JsonUtils.jsonToPojo(
-                    sb.substring(11,sb.length()-2), VideoDetailParameter.class);
+                    sb.substring(14,sb.length()-1), VideoDetailParameter.class);
             String formatName = videoDetailParameter.getFormat_name();
             if(formatName.contains("mov")||formatName.contains("mp4")
                     ||formatName.contains("m4a")||formatName.contains("3pg")
