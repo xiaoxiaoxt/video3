@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>视频剪辑</title>
+</head>
+<body>
+<form action="/upload" enctype="multipart/form-data" method="POST">
+    <input type="file" name="fileName"/><br/><br/>
+    请选择您要上传的视频属性：<br/>
+    视频格式：
+    <input name="VideoType" type="radio" value="MOV" />mov
+    <input name="VideoType" type="radio" value="MP4" checked="checked"/>mp4
+    <input name="VideoType" type="radio" value="M4A" />m4a<br/>
+    视频分辨率：
+    <input name="VideoSize" type="radio" value="LOWSIZE" />1280*720
+    <input name="VideoSize" type="radio" value="MIDDLESIZE" checked="checked"/>1600*900
+    <input name="VideoSize" type="radio" value="HIGHSIZE" />1980*1280<br/>
+    <!--视频帧率：
+    <input name="videoFrameRate" type="text" style="width: 50px" />帧/秒<br/>--><hr/>
+
+    是否要添加水印：
+    <input name="doAddLog" type="radio" value="true"/>是
+    <input name="doAddLog" type="radio" value="false" checked="checked"/>否<br/><hr/>
+
+    是否单独抽取音频：
+    <input name="doGetAudio" type="radio" value="true" id="audioOn"/>是
+    <input name="doGetAudio" type="radio" value="false" id="audioOff" checked="checked"/>否<br/>
+    <div id="audioParameter" style="display: none"><hr/>
+        请选择您要抽取的音频属性：<br/>
+        音频格式：
+        <input name="audioType" type="radio" value="FLAC" />flac
+        <input name="audioType" type="radio" value="MP3" checked="checked"/>mp3
+        <input name="audioType" type="radio" value="WMA" />wma<br/>
+        采样率：
+        <input name="audioRate" type="radio" value="LOWRATE" />24HZ
+        <input name="audioRate" type="radio" value="MIDDLERATE" checked="checked"/>44.1HZ
+        <input name="audioRate" type="radio" value="HIGHRATE" />48HZ<br/>
+        声道选择：
+        <input name="audioChannel" type="radio" value="1" />单声道
+        <input name="audioChannel" type="radio" value="2" checked="checked"/>双声道
+        <input name="audioChannel" type="radio" value="4" />立体声<br/>
+        比特率选择：
+        <input name="audioBitRate" type="radio" value="LOWBITRATE" />128k
+        <input name="audioBitRate" type="radio" value="MIDDLEBITRATE" checked="checked"/>256k
+        <input name="audioBitRate" type="radio" value="HIGHBITRATE" />320k<br/>
+        音量选择：
+        <input name="audioVolume" type="radio" value="LOWVOLUME" />低音量
+        <input name="audioVolume" type="radio" value="MIDDLEVOLUME" checked="checked"/>中音量
+        <input name="audioVolume" type="radio" value="HIGHVOLUME" />高音量<br/>
+    </div><hr/>
+
+    是否要截取视频：
+    <input name="doCutVideo" type="radio" value="true" id="cutVideoOn"/>是
+    <input name="doCutVideo" type="radio" value="false" id="cutVideoOff" checked="checked"/>否<br/>
+    <div id="cutVideoParameter" style="display: none">
+    开始时间：<input name="startTime" type="text" style="width: 50px" value="0"/>
+    结束时间：<input name="endTime" type="text" style="width: 50px" value="0"/>
+    </div><hr/>
+
+    是否要截取图片：
+    <input name="doGetImg" type="radio" value="true" id="imgOn"/>是
+    <input name="doGetImg" type="radio" value="false" id="imgOff" checked="checked"/>否<br/>
+    <div id="imgParameter" style="display: none">
+        请选择您的截取属性：<br/>
+        截取频率：
+        <input name="imgRate" type="text" style="width: 50px" value="0"/>秒/张<br/>
+        图片格式：
+        <input name="imgType" type="radio" value="png" />png
+        <input name="imgType" type="radio" value="jpg" checked="checked"/>jpg
+        <input name="imgType" type="radio" value="gif" />gif<br/>
+    </div>
+    <input type="submit" value="提交"/>
+</form>
+</body>
+<script>
+    var audioOn=document.getElementById("audioOn");
+    var audioOff=document.getElementById("audioOff");
+    var audioParameter=document.getElementById("audioParameter");
+    audioOn.onclick=function () {
+        audioParameter.style.display='block';
+    }
+    audioOff.onclick=function () {
+        audioParameter.style.display='none';
+    }
+    var imgOn=document.getElementById("imgOn");
+    var imgOff=document.getElementById("imgOff");
+    var imgParameter=document.getElementById("imgParameter");
+    imgOn.onclick=function () {
+        imgParameter.style.display='block';
+    }
+    imgOff.onclick=function () {
+        imgParameter.style.display='none';
+    }
+    var cutVideoOn=document.getElementById("cutVideoOn");
+    var cutVideoOff=document.getElementById("cutVideoOff");
+    var cutVideoParameter=document.getElementById("cutVideoParameter");
+    cutVideoOn.onclick=function () {
+        cutVideoParameter.style.display='block';
+    }
+    cutVideoOff.onclick=function () {
+        cutVideoParameter.style.display='none';
+    }
+</script>
+</html>
