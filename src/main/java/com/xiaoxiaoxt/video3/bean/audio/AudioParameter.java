@@ -1,8 +1,6 @@
 package com.xiaoxiaoxt.video3.bean.audio;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @ToString
 @Setter

@@ -33,7 +33,7 @@ public class Vo extends VideoParameter {
 
     private boolean doGetImg;
     private String cutImgPath;
-    private String imgRate;
+    private double imgRate;
     private String imgType;
 
     public String getFullPath(){

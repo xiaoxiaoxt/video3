@@ -27,6 +27,6 @@ public class ControllerVo {
     private double endTime;
 
     private boolean doGetImg;
-    private String imgRate;
+    private double imgRate;
     private String imgType;
 }

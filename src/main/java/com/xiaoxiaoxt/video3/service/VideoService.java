@@ -33,12 +33,22 @@ public class VideoService {
     public void upload(Vo vo) {
         transformType(vo);
         transformSize(vo);
-        doGetAudio(vo);
-        doCutVideo(vo);
-        doGetImg(vo);
-        doAddLog(vo);
+        new Thread(()->
+            doGetAudio(vo)
+        ).start();
+        new Thread(()->
+            doCutVideo(vo)
+        ).start();
+        new Thread(()->
+            doGetImg(vo)
+        ).start();
+        new Thread(()->
+            doAddLog(vo)
+        ).start();
+
     }
 
+    //格式抓换
     private void transformType(Vo vo) {
         String newName = CmdUtils.updateName(vo.getVideoName(), vo.getVideoType().getType());
         String transformedCmd = MessageFormat.format(transformTypeCmd, vo.getFullPath(),
@@ -50,6 +60,7 @@ public class VideoService {
         vo.setVideoPath(transformTypePath);
     }
 
+    //尺寸转换
     private void transformSize(Vo vo) {
         String transformedCmd = MessageFormat.format(transformSizeCmd, vo.getFullPath(),
                 vo.getVideoSize().getSize(), transformSizePath + vo.getVideoName());
@@ -59,6 +70,7 @@ public class VideoService {
         vo.setVideoPath(transformSizePath);
     }
 
+    //抽取音频
     private void doGetAudio(Vo vo) {
         if(!vo.isDoGetAudio()){
             return;
@@ -69,12 +81,14 @@ public class VideoService {
         CmdUtils.exeCmd(transformedCmd);
     }
 
+    //截取视频
     private void doCutVideo(Vo vo) {
         String transformedCmd = MessageFormat.format(cutVideoCmd, vo.getFullPath(), vo.getStartTime(),
                 vo.getEndTime(),vo.getCutVideoPath()+vo.getVideoName());
         CmdUtils.exeCmd(transformedCmd);
     }
 
+    //截取图片
     private void doGetImg(Vo vo) {
         String prefix = CmdUtils.updateName(vo.getVideoName(), "");
         String transformedCmd = MessageFormat.format(cutImgCmd, vo.getFullPath(),
@@ -82,6 +96,7 @@ public class VideoService {
         CmdUtils.exeCmd(transformedCmd);
     }
 
+    //添加水印
     private void doAddLog(Vo vo) {
         String transformedCmd = MessageFormat.format(addLogCmd, vo.getFullPath(),
                 vo.getLogPicPath(), vo.getAddLogPath() + vo.getVideoName());

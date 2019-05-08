@@ -1,5 +1,7 @@
 package com.xiaoxiaoxt.video3.utils;
 
+import org.jboss.logging.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,48 +31,41 @@ public class CmdUtils {
         if (process == null) {
             return;
         }
-        // 处理InputStream的线程
-        new Thread() {
-            @Override
-            public void run() {
-                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line = null;
+        Logger logger = Logger.getLogger(CmdUtils.class);
+        new Thread(()->{
+            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = null;
+            try {
+                while ((line = in.readLine()) != null) {
+                    logger.info("output: " + line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
-                    while ((line = in.readLine()) != null) {
-                        //logger.info("output: " + line);
-                    }
+                    in.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                } finally {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
-        }.start();
-        // 处理ErrorStream的线程
-        new Thread() {
-            @Override
-            public void run() {
-                BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                String line = null;
+        }).start();
+        new Thread(()->{
+            BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            String line = null;
+            try {
+                while ((line = err.readLine()) != null) {
+                    logger.info("info: " + line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
-                    while ((line = err.readLine()) != null) {
-                        //logger.info("err: " + line);
-                    }
+                    err.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                } finally {
-                    try {
-                        err.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
-        }.start();
+        }).start();
     }
 
     public static String updateName(String name,String type){

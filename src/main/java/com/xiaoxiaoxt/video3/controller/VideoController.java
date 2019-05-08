@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
+import java.util.UUID;
 
 @Controller
 public class VideoController {
@@ -44,6 +45,7 @@ public class VideoController {
     String logPicPath;
     @Autowired
     private VideoService videoService;
+    private boolean endFlag=true;
 
     @RequestMapping("/")
     public String index(){
@@ -57,7 +59,7 @@ public class VideoController {
         if(file.isEmpty()){
             return "上传失败";
         }
-        String originalFilename = file.getOriginalFilename();
+        String originalFilename = UUID.randomUUID()+file.getOriginalFilename();
         cVo.setOriginalFilename(originalFilename);
         File uploadFile=new File(uploadPath+originalFilename);
         try {
@@ -68,6 +70,10 @@ public class VideoController {
         if(!isVideo(uploadPath+originalFilename)){
             uploadFile.delete();
             return "您上传的文件格式不对，请上传视频格式的文件";
+        }
+        if(!endFlag){
+            endFlag=true;
+            return "上传成功,您上传的文件格式正确，但是后缀名有问题，请把后缀名修改为MP4格式";
         }
         new Thread(()->{
                 Vo vo=new Vo();
@@ -90,7 +96,6 @@ public class VideoController {
             vo.setAddLogPath(addLogPath);
             vo.setLogPicPath(logPicPath);
         }
-
         vo.setDoGetAudio(cVo.isDoGetAudio());
         if(cVo.isDoGetAudio()){
             vo.setAudioPath(audioPath);
@@ -102,22 +107,21 @@ public class VideoController {
             String audioName=CmdUtils.updateName(vo.getVideoName(), cVo.getAudioType());
             vo.setAudioName(audioName);
         }
-
         vo.setDoCutVideo(cVo.isDoCutVideo());
         if(cVo.isDoCutVideo()){
             vo.setCutVideoPath(cutVideoPath);
             vo.setStartTime(cVo.getStartTime());
             vo.setEndTime(cVo.getEndTime());
         }
-
         vo.setDoGetImg(cVo.isDoGetImg());
         if(cVo.isDoGetImg()){
             vo.setCutImgPath(cutImgPath);
-            vo.setImgRate(cVo.getImgRate());
+            vo.setImgRate(1.0/cVo.getImgRate());
             vo.setImgType(cVo.getImgType());
         }
     }
 
+    //判断是否为视频格式
     private boolean isVideo(String fileFullPath) {
         boolean isVideo=false;
         String transformedCmd= MessageFormat.format(isVideoCmd,fileFullPath);
@@ -139,6 +143,13 @@ public class VideoController {
                     ||formatName.contains("3g2")||formatName.contains("mj2")){
                 isVideo=true;
             }
+            String filename = videoDetailParameter.getFilename();
+            if(!(filename.endsWith("mov")||filename.endsWith("mp4")
+                    ||filename.endsWith("m4a")||filename.endsWith("3pg")
+                    ||filename.endsWith("3g2")||filename.endsWith("mj2"))){
+                endFlag=false;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
