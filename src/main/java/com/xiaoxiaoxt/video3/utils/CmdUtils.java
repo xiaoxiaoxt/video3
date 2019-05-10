@@ -32,40 +32,36 @@ public class CmdUtils {
             return;
         }
         Logger logger = Logger.getLogger(CmdUtils.class);
-        new Thread(()->{
-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = null;
+        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = null;
+        try {
+            while ((line = in.readLine()) != null) {
+                logger.info("output: " + line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
             try {
-                while ((line = in.readLine()) != null) {
-                    logger.info("output: " + line);
-                }
+                in.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
-        }).start();
-        new Thread(()->{
-            BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String line = null;
+        }
+        BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        line = null;
+        try {
+            while ((line = err.readLine()) != null) {
+                logger.info("info: " + line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
             try {
-                while ((line = err.readLine()) != null) {
-                    logger.info("info: " + line);
-                }
+                err.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    err.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
-        }).start();
+        }
     }
 
     public static String updateName(String name,String type){

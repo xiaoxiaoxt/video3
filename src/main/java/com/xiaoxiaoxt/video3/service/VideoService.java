@@ -1,9 +1,10 @@
 package com.xiaoxiaoxt.video3.service;
 
-import com.xiaoxiaoxt.video3.utils.CmdUtils;
 import com.xiaoxiaoxt.video3.bean.vo.Vo;
+import com.xiaoxiaoxt.video3.utils.CmdUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ws.schild.jave.*;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -11,15 +12,8 @@ import java.text.MessageFormat;
 @Service
 public class VideoService {
 
-    @Value("${file.transformTypePath}")
-    String transformTypePath;
-    @Value("${file.transformType.cmd}")
-    String transformTypeCmd;
-
-    @Value("${file.transformSizePath}")
-    String transformSizePath;
-    @Value("${file.transformSize.cmd}")
-    String transformSizeCmd;
+    @Value("${file.transformPath}")
+    String transformPath;
 
     @Value("${file.cutAudio.cmd}")
     String cutAudioCmd;
@@ -31,43 +25,37 @@ public class VideoService {
     String addLogCmd;
 
     public void upload(Vo vo) {
-        transformType(vo);
-        transformSize(vo);
-        new Thread(()->
-            doGetAudio(vo)
-        ).start();
-        new Thread(()->
-            doCutVideo(vo)
-        ).start();
-        new Thread(()->
-            doGetImg(vo)
-        ).start();
-        new Thread(()->
-            doAddLog(vo)
-        ).start();
-
+        transform(vo);
+        doGetAudio(vo);
+        doCutVideo(vo);
+        doGetImg(vo);
+        doAddLog(vo);
     }
 
-    //格式抓换
-    private void transformType(Vo vo) {
-        String newName = CmdUtils.updateName(vo.getVideoName(), vo.getVideoType().getType());
-        String transformedCmd = MessageFormat.format(transformTypeCmd, vo.getFullPath(),
-                transformTypePath + newName);
-        CmdUtils.exeCmd(transformedCmd);
-        File file=new File(vo.getFullPath());
-        file.delete();
-        vo.setVideoName(newName);
-        vo.setVideoPath(transformTypePath);
-    }
-
-    //尺寸转换
-    private void transformSize(Vo vo) {
-        String transformedCmd = MessageFormat.format(transformSizeCmd, vo.getFullPath(),
-                vo.getVideoSize().getSize(), transformSizePath + vo.getVideoName());
-        CmdUtils.exeCmd(transformedCmd);
-        File file=new File(vo.getFullPath());
-        file.delete();
-        vo.setVideoPath(transformSizePath);
+    //转换
+    private void transform(Vo vo) {
+        AudioAttributes audio = new AudioAttributes();
+        VideoAttributes video = new VideoAttributes();
+        String size = vo.getVideoSize().getSize();
+        int i = size.indexOf("*");
+        String width=size.substring(0,i);
+        String height=size.substring(i+1);
+        video.setSize(new VideoSize(new Integer(width),new Integer(height)));
+        EncodingAttributes attrs = new EncodingAttributes();
+        attrs.setFormat(vo.getVideoType().getType());
+        attrs.setAudioAttributes(audio);
+        attrs.setVideoAttributes(video);
+        Encoder encoder = new Encoder();
+        try {
+            String newName=CmdUtils.updateName(vo.getVideoName(),vo.getVideoType().getType());
+            File target=new File(transformPath+newName);
+            encoder.encode(new MultimediaObject(new File(vo.getFullPath())),
+                    target, attrs);
+            vo.setVideoPath(transformPath);
+            vo.setVideoName(newName);
+        } catch (EncoderException e) {
+            e.printStackTrace();
+        }
     }
 
     //抽取音频
